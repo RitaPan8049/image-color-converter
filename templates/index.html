@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片颜色简化工具 - JPG 转 BMP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 图片颜色简化工具</h1>
+            <p class="subtitle">将图片转换为只有几种主要颜色的 BMP 格式</p>
+        </header>
+
+        <main>
+            <!-- 闪现消息 -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- 上传表单 -->
+            <div class="card upload-card">
+                <h2>上传图片</h2>
+                <form id="uploadForm" action="/convert" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="file" class="file-label">
+                            <div class="file-drop-area" id="dropArea">
+                                <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                <p class="file-message">点击选择或拖放图片文件</p>
+                                <p class="file-info">支持 JPG、PNG、GIF、BMP 格式，最大 16MB</p>
+                            </div>
+                            <input type="file" id="file" name="file" accept="image/*" required>
+                        </label>
+                    </div>
+
+                    <div class="file-preview" id="filePreview" style="display: none;">
+                        <img id="previewImage" src="" alt="预览">
+                        <p id="fileName"></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="n_colors">颜色数量：</label>
+                        <div class="color-selector">
+                            <input type="range" id="n_colors" name="n_colors" min="2" max="10" value="3">
+                            <span id="colorValue">3</span> 种颜色
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            转换并下载
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="previewBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            预览颜色
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 颜色预览 -->
+            <div class="card color-preview-card" id="colorPreview" style="display: none;">
+                <h2>提取的主要颜色</h2>
+                <div class="color-grid" id="colorGrid"></div>
+            </div>
+
+            <!-- 使用说明 -->
+            <div class="card info-card">
+                <h2>使用说明</h2>
+                <ol>
+                    <li><strong>上传图片</strong>：点击或拖放图片文件到上传区域</li>
+                    <li><strong>选择颜色数量</strong>：调整滑块选择要保留的颜色数量（2-10种）</li>
+                    <li><strong>预览颜色</strong>：点击"预览颜色"按钮查看将要提取的主要颜色</li>
+                    <li><strong>转换下载</strong>：点击"转换并下载"按钮生成 BMP 文件</li>
+                </ol>
+
+                <h3>工作原理</h3>
+                <p>本工具使用 <strong>K-means 聚类算法</strong>分析图片中的所有像素，提取出最具代表性的几种颜色，然后将每个像素替换为最接近的主要颜色，实现颜色简化效果。</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>图片颜色简化工具 | 使用 Flask + K-means 聚类算法</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
